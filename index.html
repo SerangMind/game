@@ -57,6 +57,10 @@
       }
 
       .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
         color: #fffaf0;
       }
 
@@ -76,6 +80,33 @@
         color: rgba(255, 250, 240, 0.78);
         font-size: 16px;
         line-height: 1.5;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        width: min(420px, 100%);
+      }
+
+      .summary a {
+        border: 1px solid rgba(255, 250, 240, 0.2);
+        border-radius: var(--radius);
+        padding: 12px;
+        background: rgba(255, 250, 240, 0.08);
+        color: #fffaf0;
+        font-weight: 800;
+        text-align: center;
+        transition:
+          background 0.16s ease,
+          border-color 0.16s ease;
+      }
+
+      .summary a:hover,
+      .summary a:focus-visible {
+        background: rgba(255, 250, 240, 0.16);
+        border-color: rgba(255, 250, 240, 0.42);
+        outline: none;
       }
 
       .panel {
@@ -269,8 +300,18 @@
       }
 
       @media (max-width: 980px) {
+        .topbar,
         .sections {
           grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          display: grid;
+          align-items: flex-start;
+        }
+
+        .summary {
+          width: 100%;
         }
       }
 
@@ -278,6 +319,10 @@
         .page {
           width: min(100% - 20px, 1180px);
           padding: 18px 0;
+        }
+
+        .summary {
+          grid-template-columns: 1fr;
         }
 
         .category-media {
@@ -293,10 +338,15 @@
           <h1>바이브코딩 따라잡기 게임 모음</h1>
           <p>시뮬레이션, 퀴즈, 진로 탐험 게임으로 바로 이동하는 메인 허브</p>
         </div>
+        <nav class="summary" aria-label="게임 분류">
+          <a href="#sim">SIM</a>
+          <a href="#quiz">QUIZ</a>
+          <a href="#dream">DREAM</a>
+        </nav>
       </header>
 
       <section class="sections" aria-label="게임 카테고리">
-        <article class="panel category">
+        <article class="panel category" id="sim">
           <div class="category-media" aria-hidden="true">
             <div class="scene">
               <span class="drone"></span>
@@ -317,7 +367,7 @@
           </div>
         </article>
 
-        <article class="panel category">
+        <article class="panel category" id="quiz">
           <div class="category-media" aria-hidden="true">
             <img src="./quiz/vibecoding/images/background01.png" alt="" />
           </div>
@@ -335,7 +385,7 @@
           </div>
         </article>
 
-        <article class="panel category">
+        <article class="panel category" id="dream">
           <div class="category-media" aria-hidden="true">
             <img src="./quiz/vibecoding/assets/병아리.png" alt="" />
           </div>
