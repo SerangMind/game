@@ -1,4 +1,5 @@
-node_modules
-.npm-cache
-tests
-tools
+.DS_Store
+node_modules/
+tests/
+tools/
+npm-debug.log*

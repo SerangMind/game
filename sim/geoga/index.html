@@ -3,17 +3,41 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>거가대교</title>
-    <link rel="stylesheet" href="./src/styles.css" />
+    <title>거가대교 드론</title>
+    <link rel="stylesheet" href="./src/styles.css?v=20260429r" />
   </head>
   <body>
     <div id="overlay">
-      <div class="title">거가대교</div>
+      <div class="title">거가대교 드론</div>
       <div class="line">W/S 전후진, A/D 좌우, Space/Ctrl 상승/하강, Shift 부스트.</div>
       <div class="line">C 시점 전환, 1-4 근접 통과/접속교/와이드 전경/섬 복귀 프리셋 이동.</div>
+      <div class="line">게임패드: 왼쪽 스틱 이동, 오른쪽 스틱 기수, L/R 트리거 상승/하강, A 부스트.</div>
       <div id="status" class="status"></div>
     </div>
+    <div id="activationPanel" class="activation-panel">
+      <button id="audioStartButton" type="button">소리 켜기</button>
+      <div id="startupStatus">패드 버튼을 한 번 누르면 연결을 확인합니다.</div>
+    </div>
+    <div id="audioControls" class="audio-controls" hidden>
+      <label><button id="audioOffButton" class="audio-off-button" type="button">ON</button>
+        <select id="musicTrack">
+          <option value="0">1 Dance Summer Vibe</option>
+          <option value="1">2 Quiz Countdown</option>
+          <option value="2">3 Calm Background</option>
+          <option value="3">4 Gentle Ambient BG</option>
+          <option value="4">5 Gentle Ambient</option>
+          <option value="5">6 Beauty Ambient</option>
+          <option value="6">7 Voice Over Music</option>
+          <option value="7">8 House Ambient</option>
+          <option value="8">9 Drone Travel Pop</option>
+          <option value="9">10 Fly High</option>
+        </select>
+      </label>
+      <label>음악 <input id="musicVolume" type="range" min="0" max="1.6" step="0.01" value="1.15" /></label>
+      <label>드론 <input id="engineVolume" type="range" min="0" max="1.2" step="0.01" value="0.55" /></label>
+      <label>바람 <input id="windVolume" type="range" min="0" max="1.2" step="0.01" value="0.65" /></label>
+    </div>
     <canvas id="app"></canvas>
-    <script type="module" src="./src/main.js"></script>
+    <script type="module" src="./src/main.js?v=20260429r"></script>
   </body>
 </html>

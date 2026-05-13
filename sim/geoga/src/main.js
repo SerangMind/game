@@ -50,13 +50,32 @@ const trafficRouteLength = geojeExtensionLength + roadLength + gadeokExtensionLe
 
 const canvas = document.querySelector("#app");
 const statusEl = document.querySelector("#status");
+const audioControlsEl = document.querySelector("#audioControls");
+const activationPanelEl = document.querySelector("#activationPanel");
+const audioStartButtonEl = document.querySelector("#audioStartButton");
+const audioOffButtonEl = document.querySelector("#audioOffButton");
+const startupStatusEl = document.querySelector("#startupStatus");
+const musicTrackEl = document.querySelector("#musicTrack");
+const musicVolumeEl = document.querySelector("#musicVolume");
+const engineVolumeEl = document.querySelector("#engineVolume");
+const windVolumeEl = document.querySelector("#windVolume");
+
+const isTouchDevice = window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+const isLocalOrigin = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+const QUALITY = {
+  pixelRatio: Math.min(window.devicePixelRatio || 1, isTouchDevice ? 1.1 : 1.25),
+  shadowMapSize: isTouchDevice ? 1024 : 2048,
+  terrainSegmentsX: isTouchDevice ? 88 : 120,
+  terrainSegmentsZ: isTouchDevice ? 58 : 80,
+  trafficCarCount: isTouchDevice ? 56 : 72
+};
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: true,
+  antialias: !isTouchDevice,
   powerPreference: "high-performance"
 });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(QUALITY.pixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -108,6 +127,81 @@ const input = {
   reset: false
 };
 
+const MUSIC_TRACKS = [
+  {
+    name: "Dance Summer Vibe",
+    file: "./sound/paulyudin-dance-summer-vibe-198535.mp3"
+  },
+  {
+    name: "Quiz Countdown",
+    file: "./sound/paoloargento-quiz-countdown-194417.mp3"
+  },
+  {
+    name: "Calm Background",
+    file: "./sound/lvymusic-calm-background-for-video-121519.mp3"
+  },
+  {
+    name: "Gentle Ambient BG",
+    file: "./sound/lvymusic-gentle-ambient-background-corporate-123207.mp3"
+  },
+  {
+    name: "Gentle Ambient",
+    file: "./sound/lvymusic-gentle-ambient-corporate-123208.mp3"
+  },
+  {
+    name: "Beauty Ambient",
+    file: "./sound/lvymusic-beauty-ambient-corporate-119282.mp3"
+  },
+  {
+    name: "Voice Over Music",
+    file: "./sound/soulprodmusic-voice-over-music-141541.mp3"
+  },
+  {
+    name: "House Ambient",
+    file: "./sound/lvymusic-background-house-ambient-118485.mp3"
+  },
+  {
+    name: "Drone Travel Pop",
+    file: "./sound/music-for-videos-drone-travel-flight-pop-187564.mp3"
+  },
+  {
+    name: "Fly High",
+    file: "./sound/sounovamusic-fly-high-well-be-alright-415007.mp3"
+  }
+];
+
+const gamepadState = {
+  index: null,
+  id: "",
+  status: "패드 대기",
+  lookX: 0,
+  lookY: 0,
+  boostButton: "",
+  previousButtons: []
+};
+
+const audioState = {
+  context: null,
+  masterGain: null,
+  engineOsc: null,
+  engineGain: null,
+  engineFilter: null,
+  windSource: null,
+  windGain: null,
+  windFilter: null,
+  musicGain: null,
+  musicTrackIndex: 0,
+  musicElement: null,
+  musicVolume: 1.15,
+  engineVolume: 0.55,
+  windVolume: 0.65,
+  muted: false,
+  unlocked: false,
+  attempted: false,
+  playing: false,
+  status: "음향 대기"
+};
+
 let pointerLocked = false;
 let lookDeltaX = 0;
 let lookDeltaY = 0;
@@ -120,7 +214,7 @@ let nowSeconds = 0;
 const sun = new THREE.DirectionalLight(0xfff1db, 2.05);
 sun.position.set(-1100, 1080, 420);
 sun.castShadow = true;
-sun.shadow.mapSize.set(4096, 4096);
+sun.shadow.mapSize.set(QUALITY.shadowMapSize, QUALITY.shadowMapSize);
 sun.shadow.camera.near = 80;
 sun.shadow.camera.far = 5200;
 sun.shadow.camera.left = -2400;
@@ -144,15 +238,70 @@ buildNavigationReferenceLights();
 applyPreset(2, true);
 setViewMode(0);
 updateStatus();
+updateStartupPanel();
 
-canvas.addEventListener("click", () => {
-  if (!pointerLocked) {
-    canvas.requestPointerLock();
-  }
+for (const eventName of ["touchstart", "pointerdown", "mousedown", "touchend", "pointerup", "click"]) {
+  audioStartButtonEl?.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    handlePrimaryActivation(event, false);
+  }, { capture: true, passive: false });
+}
+
+canvas.addEventListener("pointerup", (event) => {
+  handlePrimaryActivation(event, !isTouchDevice);
 });
+
+canvas.addEventListener("click", (event) => {
+  handlePrimaryActivation(event, !isTouchDevice);
+});
+
+canvas.addEventListener("touchend", (event) => {
+  handlePrimaryActivation(event, false);
+}, { passive: true });
+
+for (const control of [musicTrackEl, musicVolumeEl, engineVolumeEl, windVolumeEl]) {
+  control?.addEventListener("input", updateAudioControlValues);
+  control?.addEventListener("change", updateAudioControlValues);
+  control?.addEventListener("pointerdown", (event) => {
+    event.stopPropagation();
+    ensureAudio(true);
+  });
+  control?.addEventListener("touchstart", (event) => {
+    event.stopPropagation();
+    ensureAudio(true);
+  }, { passive: true });
+}
+for (const eventName of ["touchstart", "pointerdown", "mousedown", "click"]) {
+  audioOffButtonEl?.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setMuted(true);
+  }, { capture: true, passive: false });
+}
+updateAudioControlValues();
 
 document.addEventListener("pointerlockchange", () => {
   pointerLocked = document.pointerLockElement === canvas;
+});
+
+window.addEventListener("gamepadconnected", (event) => {
+  gamepadState.index = event.gamepad.index;
+  gamepadState.id = event.gamepad.id || "Gamepad";
+  gamepadState.status = "패드 연결됨";
+  gamepadState.previousButtons = [];
+});
+
+window.addEventListener("gamepaddisconnected", (event) => {
+  if (gamepadState.index === event.gamepad.index) {
+    gamepadState.index = null;
+    gamepadState.id = "";
+    gamepadState.status = "패드 대기";
+    gamepadState.lookX = 0;
+    gamepadState.lookY = 0;
+    gamepadState.boostButton = "";
+    gamepadState.previousButtons = [];
+  }
 });
 
 window.addEventListener("mousemove", (event) => {
@@ -175,10 +324,12 @@ function animate() {
   nowSeconds += dt;
   fpsSmoothing = THREE.MathUtils.lerp(fpsSmoothing, 1 / Math.max(dtRaw, 0.00001), 0.08);
 
+  updateGamepadInput();
   updateFlight(dt);
   updateCamera(dt);
   updateTraffic(nowSeconds);
   updateWater(nowSeconds);
+  updateAudio(dt);
   updateStatus();
 
   renderer.render(scene, camera);
@@ -197,7 +348,11 @@ window.__ggDebug = {
     velocity: droneState.velocity.toArray(),
     speedMps: droneState.velocity.length(),
     mode: cameraState.mode,
-    modeName: VIEW_NAMES[cameraState.mode]
+    modeName: VIEW_NAMES[cameraState.mode],
+    audioStatus: audioState.status,
+    gamepadStatus: gamepadState.status,
+    gamepadSupported: Boolean(navigator.getGamepads),
+    secureContext: window.isSecureContext
   }),
   setInput: (patch) => {
     if (typeof patch.throttle === "number") input.throttle = THREE.MathUtils.clamp(patch.throttle, -1, 1);
@@ -210,10 +365,19 @@ window.__ggDebug = {
 function onResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+  renderer.setPixelRatio(QUALITY.pixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function onKey(code, isDown) {
+  if (isDown) {
+    if (code === "KeyM") {
+      toggleMute();
+      return;
+    }
+    ensureAudio(true);
+  }
+
   switch (code) {
     case "KeyW":
       input.throttle = isDown ? 1 : input.throttle === 1 ? 0 : input.throttle;
@@ -263,6 +427,417 @@ function onKey(code, isDown) {
   }
 }
 
+function handlePrimaryActivation(event, requestPointerLock = false) {
+  ensureAudio(true);
+  getActiveGamepad();
+  updateStartupPanel();
+
+  if (requestPointerLock && !pointerLocked && canvas.requestPointerLock) {
+    try {
+      canvas.requestPointerLock();
+    } catch {
+      // Pointer lock is optional and commonly unavailable on iPad.
+    }
+  }
+}
+
+function updateGamepadInput() {
+  const gamepad = getActiveGamepad();
+  if (!gamepad) {
+    gamepadState.lookX = 0;
+    gamepadState.lookY = 0;
+    return;
+  }
+
+  const leftY = readGamepadAxis(gamepad, 1);
+  const rightX = readGamepadAxis(gamepad, 2);
+  const rightY = readGamepadAxis(gamepad, 3);
+  const leftTrigger = Math.max(readGamepadButton(gamepad, 6), readGamepadButton(gamepad, 4));
+  const rightTrigger = Math.max(readGamepadButton(gamepad, 7), readGamepadButton(gamepad, 5));
+
+  input.throttle = -leftY;
+  input.yaw = 0;
+  input.ascend = rightTrigger - leftTrigger;
+  gamepadState.lookX = rightX;
+  gamepadState.lookY = rightY;
+
+  const boostButton = getPressedBoostButton(gamepad);
+  input.boost = boostButton !== null;
+  gamepadState.boostButton = boostButton?.label || "";
+
+  if (wasGamepadButtonPressed(gamepad, 1)) {
+    input.reset = true;
+  }
+  if (wasGamepadButtonPressed(gamepad, 2)) {
+    toggleMute();
+  }
+  if (wasGamepadButtonPressed(gamepad, 3)) {
+    setViewMode(cameraState.mode + 1);
+  }
+  if (wasGamepadButtonPressed(gamepad, 9)) {
+    toggleMute();
+  }
+
+  if (wasGamepadButtonPressed(gamepad, 12)) {
+    applyPreset(1);
+  }
+  if (wasGamepadButtonPressed(gamepad, 14)) {
+    applyPreset(2);
+  }
+  if (wasGamepadButtonPressed(gamepad, 15)) {
+    applyPreset(3);
+  }
+  if (wasGamepadButtonPressed(gamepad, 13)) {
+    applyPreset(4);
+  }
+
+  gamepadState.previousButtons = gamepad.buttons.map((button) => button.pressed || button.value > 0.5);
+}
+
+function getActiveGamepad() {
+  if (!navigator.getGamepads) {
+    gamepadState.status = window.isSecureContext || isLocalOrigin ? "패드 미지원" : "패드 HTTPS 필요";
+    return null;
+  }
+
+  let pads = [];
+  try {
+    pads = navigator.getGamepads();
+  } catch {
+    gamepadState.status = "패드 접근 차단";
+    return null;
+  }
+
+  if (gamepadState.index !== null && pads[gamepadState.index]?.connected) {
+    gamepadState.status = "패드 연결됨";
+    return pads[gamepadState.index];
+  }
+
+  for (const pad of pads) {
+    if (pad?.connected) {
+      gamepadState.index = pad.index;
+      gamepadState.id = pad.id || "Gamepad";
+      gamepadState.status = "패드 연결됨";
+      return pad;
+    }
+  }
+
+  gamepadState.status = "패드 버튼 누르기";
+  return null;
+}
+
+function readGamepadAxis(gamepad, axisIndex) {
+  const value = gamepad.axes[axisIndex] ?? 0;
+  const deadzone = 0.12;
+  if (Math.abs(value) < deadzone) {
+    return 0;
+  }
+  return THREE.MathUtils.clamp((Math.abs(value) - deadzone) / (1 - deadzone) * Math.sign(value), -1, 1);
+}
+
+function readGamepadButton(gamepad, buttonIndex) {
+  const button = gamepad.buttons[buttonIndex];
+  if (!button) {
+    return 0;
+  }
+  return button.value ?? (button.pressed ? 1 : 0);
+}
+
+function wasGamepadButtonPressed(gamepad, buttonIndex) {
+  const isPressed = readGamepadButton(gamepad, buttonIndex) > 0.5;
+  return isPressed && !gamepadState.previousButtons[buttonIndex];
+}
+
+function getPressedBoostButton(gamepad) {
+  const candidates = [0];
+  for (const index of candidates) {
+    if (readGamepadButton(gamepad, index) > 0.5) {
+      return { index, label: `B${index}` };
+    }
+  }
+  return null;
+}
+
+function ensureAudio(enableSound = false) {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) {
+    audioState.status = "음향 미지원";
+    updateAudioControlsVisibility();
+    return;
+  }
+
+  audioState.attempted = true;
+
+  if (!audioState.context) {
+    const context = new AudioContextClass();
+    const masterGain = context.createGain();
+    masterGain.gain.value = 0.24;
+    masterGain.connect(context.destination);
+
+    const engineOsc = context.createOscillator();
+    engineOsc.type = "sawtooth";
+    engineOsc.frequency.value = 70;
+
+    const engineFilter = context.createBiquadFilter();
+    engineFilter.type = "lowpass";
+    engineFilter.frequency.value = 360;
+    engineFilter.Q.value = 0.8;
+
+    const engineGain = context.createGain();
+    engineGain.gain.value = 0;
+    engineOsc.connect(engineFilter);
+    engineFilter.connect(engineGain);
+    engineGain.connect(masterGain);
+    engineOsc.start();
+
+    const windSource = context.createBufferSource();
+    windSource.buffer = createNoiseBuffer(context, 2);
+    windSource.loop = true;
+
+    const windFilter = context.createBiquadFilter();
+    windFilter.type = "bandpass";
+    windFilter.frequency.value = 900;
+    windFilter.Q.value = 0.7;
+
+    const windGain = context.createGain();
+    windGain.gain.value = 0;
+    windSource.connect(windFilter);
+    windFilter.connect(windGain);
+    windGain.connect(masterGain);
+    windSource.start();
+
+    const musicGain = context.createGain();
+    musicGain.gain.value = 0.62;
+    musicGain.connect(masterGain);
+
+    const musicElement = new Audio();
+    musicElement.loop = false;
+    musicElement.preload = "auto";
+    musicElement.crossOrigin = "anonymous";
+    musicElement.controls = false;
+    musicElement.style.display = "none";
+    musicElement.playsInline = true;
+    musicElement.setAttribute("playsinline", "");
+    musicElement.addEventListener("playing", () => {
+      if (!audioState.muted) {
+        audioState.playing = true;
+        audioState.status = "음향 켜짐";
+        updateAudioControlsVisibility();
+        updateStartupPanel();
+      }
+    });
+    musicElement.addEventListener("pause", () => {
+      if (!audioState.muted) {
+        audioState.playing = false;
+        audioState.status = "음악 재생 대기";
+        updateAudioControlsVisibility();
+      }
+    });
+    musicElement.addEventListener("error", () => {
+      audioState.playing = false;
+      audioState.status = "음악 파일 오류";
+      updateAudioControlsVisibility();
+    });
+    musicElement.addEventListener("ended", () => {
+      playNextMusicTrack();
+    });
+    musicElement.src = getCurrentMusicTrack().file;
+    document.body.appendChild(musicElement);
+    const musicSource = context.createMediaElementSource(musicElement);
+    musicSource.connect(musicGain);
+
+    audioState.context = context;
+    audioState.masterGain = masterGain;
+    audioState.engineOsc = engineOsc;
+    audioState.engineGain = engineGain;
+    audioState.engineFilter = engineFilter;
+    audioState.windSource = windSource;
+    audioState.windGain = windGain;
+    audioState.windFilter = windFilter;
+    audioState.musicGain = musicGain;
+    audioState.musicElement = musicElement;
+  }
+
+  if (enableSound) {
+    audioState.unlocked = true;
+    audioState.muted = false;
+    if (audioState.masterGain && audioState.context) {
+      audioState.masterGain.gain.setTargetAtTime(0.24, audioState.context.currentTime, 0.02);
+    }
+    startMusic();
+    updateAudioStatus();
+    updateAudioControlsVisibility();
+    updateStartupPanel();
+  }
+
+  if (audioState.context.state !== "running") {
+    const resumePromise = audioState.context.resume();
+    resumePromise?.then(() => {
+      audioState.unlocked = true;
+      updateAudioStatus();
+      startMusic();
+      updateStartupPanel();
+    }).catch(() => {
+      audioState.status = "음향 대기";
+      updateAudioControlsVisibility();
+      updateStartupPanel();
+    });
+  } else {
+    audioState.unlocked = true;
+    if (enableSound) {
+      setMuted(false);
+    } else {
+      updateAudioStatus();
+    }
+    startMusic();
+    updateStartupPanel();
+  }
+}
+
+function updateAudioControlValues() {
+  const previousTrackIndex = audioState.musicTrackIndex;
+  audioState.musicTrackIndex = THREE.MathUtils.clamp(Number(musicTrackEl?.value ?? audioState.musicTrackIndex), 0, MUSIC_TRACKS.length - 1);
+  audioState.musicVolume = Number(musicVolumeEl?.value ?? audioState.musicVolume);
+  audioState.engineVolume = Number(engineVolumeEl?.value ?? audioState.engineVolume);
+  audioState.windVolume = Number(windVolumeEl?.value ?? audioState.windVolume);
+  if (previousTrackIndex !== audioState.musicTrackIndex && audioState.musicElement) {
+    switchMusicTrack();
+  }
+}
+
+function toggleMute() {
+  if (!audioState.context || !audioState.unlocked) {
+    ensureAudio(true);
+    return;
+  }
+
+  setMuted(!audioState.muted);
+}
+
+function setMuted(muted) {
+  audioState.muted = muted;
+  if (muted) {
+    audioState.playing = false;
+  }
+  if (audioState.masterGain && audioState.context) {
+    audioState.masterGain.gain.setTargetAtTime(muted ? 0 : 0.24, audioState.context.currentTime, 0.04);
+  }
+  if (audioState.musicElement) {
+    if (muted) {
+      audioState.musicElement.pause();
+    } else {
+      startMusic();
+    }
+  }
+  updateAudioStatus();
+  updateAudioControlsVisibility();
+}
+
+function updateAudioStatus() {
+  if (!audioState.context || !audioState.unlocked) {
+    audioState.status = "음향 대기";
+  } else {
+    audioState.status = audioState.muted ? "음향 꺼짐" : audioState.playing ? "음향 켜짐" : "음악 재생 대기";
+  }
+}
+
+function updateAudioControlsVisibility() {
+  if (audioControlsEl) {
+    audioControlsEl.hidden = !audioState.playing || audioState.muted;
+  }
+  updateStartupPanel();
+}
+
+function updateStartupPanel() {
+  if (!activationPanelEl) {
+    return;
+  }
+
+  const soundOn = audioState.playing && !audioState.muted;
+  activationPanelEl.hidden = soundOn;
+  if (audioStartButtonEl) {
+    audioStartButtonEl.textContent = audioState.muted || !audioState.unlocked ? "소리 켜기" : "소리 다시 시도";
+  }
+  if (startupStatusEl) {
+    const audioHint = audioState.attempted ? audioState.status : "소리 대기";
+    const contextHint = window.isSecureContext ? "HTTPS 정상" : "HTTPS 아님";
+    startupStatusEl.textContent = `${audioHint} | ${gamepadState.status} | ${contextHint}`;
+  }
+}
+
+function updateAudio() {
+  if (!audioState.context || !audioState.unlocked) {
+    return;
+  }
+
+  const now = audioState.context.currentTime;
+  const speed01 = THREE.MathUtils.clamp(droneState.velocity.length() / 180, 0, 1);
+  const throttle01 = THREE.MathUtils.clamp(Math.abs(input.throttle) * 0.65 + speed01 * 0.75, 0, 1);
+  const boost01 = isBoostActive() ? 1 : 0;
+
+  audioState.engineOsc.frequency.setTargetAtTime(56 + throttle01 * 82 + boost01 * 38, now, 0.045);
+  audioState.engineFilter.frequency.setTargetAtTime(260 + throttle01 * 920 + boost01 * 620, now, 0.06);
+  audioState.engineGain.gain.setTargetAtTime((0.025 + throttle01 * 0.08 + boost01 * 0.045) * audioState.engineVolume, now, 0.05);
+  audioState.windFilter.frequency.setTargetAtTime(520 + speed01 * 1700 + boost01 * 650, now, 0.08);
+  audioState.windGain.gain.setTargetAtTime((0.012 + speed01 * 0.11 + boost01 * 0.055) * audioState.windVolume, now, 0.08);
+  audioState.musicGain.gain.setTargetAtTime((0.54 + speed01 * 0.12 + boost01 * 0.12) * audioState.musicVolume, now, 0.12);
+}
+
+function createNoiseBuffer(context, seconds) {
+  const length = Math.floor(context.sampleRate * seconds);
+  const buffer = context.createBuffer(1, length, context.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < length; i += 1) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  return buffer;
+}
+
+function getCurrentMusicTrack() {
+  return MUSIC_TRACKS[audioState.musicTrackIndex] || MUSIC_TRACKS[0];
+}
+
+function startMusic() {
+  if (!audioState.musicElement || audioState.muted) {
+    return;
+  }
+
+  const playPromise = audioState.musicElement.play();
+  playPromise?.catch(() => {
+    audioState.status = "음악 재생 대기";
+    updateAudioControlsVisibility();
+    updateStartupPanel();
+  });
+}
+
+function switchMusicTrack() {
+  if (!audioState.musicElement) {
+    return;
+  }
+
+  const wasPlaying = !audioState.musicElement.paused && !audioState.muted;
+  audioState.playing = false;
+  audioState.musicElement.pause();
+  audioState.musicElement.src = getCurrentMusicTrack().file;
+  audioState.musicElement.currentTime = 0;
+  audioState.musicElement.load();
+  if (wasPlaying || audioState.unlocked) {
+    startMusic();
+  }
+}
+
+function playNextMusicTrack() {
+  if (!audioState.musicElement || audioState.muted) {
+    return;
+  }
+
+  audioState.musicTrackIndex = (audioState.musicTrackIndex + 1) % MUSIC_TRACKS.length;
+  if (musicTrackEl) {
+    musicTrackEl.value = String(audioState.musicTrackIndex);
+  }
+  switchMusicTrack();
+}
+
 function updateFlight(dt) {
   if (input.reset) {
     input.reset = false;
@@ -271,7 +846,13 @@ function updateFlight(dt) {
   }
 
   if (presetTransition.active) {
-    if (Math.abs(input.throttle) > 0.01 || Math.abs(input.ascend) > 0.01 || Math.abs(input.yaw) > 0.01) {
+    if (
+      Math.abs(input.throttle) > 0.01 ||
+      Math.abs(input.ascend) > 0.01 ||
+      Math.abs(input.yaw) > 0.01 ||
+      Math.abs(gamepadState.lookX) > 0.01 ||
+      Math.abs(gamepadState.lookY) > 0.01
+    ) {
       presetTransition.active = false;
     } else {
       updatePresetTransition(dt);
@@ -281,22 +862,26 @@ function updateFlight(dt) {
 
   const mouseYaw = pointerLocked ? -lookDeltaX * 0.0018 : 0;
   const mousePitch = pointerLocked ? -lookDeltaY * 0.0016 : 0;
+  const gamepadYaw = gamepadState.lookX * 1.75;
+  const gamepadPitch = -gamepadState.lookY * 1.35 * dt;
   lookDeltaX = 0;
   lookDeltaY = 0;
 
-  const keyboardYaw = input.yaw * 1.2;
-  droneState.yaw += (keyboardYaw + mouseYaw) * dt;
-  droneState.pitch = THREE.MathUtils.clamp(droneState.pitch + mousePitch, -0.92, 0.72);
+  const keyboardYaw = input.yaw * 1.55;
+  droneState.yaw += (keyboardYaw + mouseYaw + gamepadYaw) * dt;
+  droneState.pitch = THREE.MathUtils.clamp(droneState.pitch + mousePitch + gamepadPitch, -0.92, 0.72);
 
   const yawRollTarget = input.yaw * 0.42;
   const mouseRollTarget = THREE.MathUtils.clamp(-mouseYaw * 2.3, -0.44, 0.44);
-  droneState.roll = THREE.MathUtils.lerp(droneState.roll, yawRollTarget + mouseRollTarget, 1 - Math.exp(-5.6 * dt));
+  const gamepadRollTarget = THREE.MathUtils.clamp(gamepadState.lookX * 0.38, -0.38, 0.38);
+  droneState.roll = THREE.MathUtils.lerp(droneState.roll, yawRollTarget + mouseRollTarget + gamepadRollTarget, 1 - Math.exp(-5.6 * dt));
 
   const forward = getForwardVector();
   const boostActive = isBoostActive();
   const maxSpeed = boostActive ? 180 : 110;
-  const throttleAccel = input.throttle * (boostActive ? 150 : 84);
-  const verticalAccel = input.ascend * 52;
+  const boostThrust = boostActive ? 92 * Math.max(0.35, Math.abs(input.throttle)) : 0;
+  const throttleAccel = input.throttle * (boostActive ? 210 : 118) + boostThrust;
+  const verticalAccel = input.ascend * 72;
 
   droneState.velocity.addScaledVector(forward, throttleAccel * dt);
   droneState.velocity.y += verticalAccel * dt;
@@ -323,12 +908,12 @@ function updateCamera(dt) {
 
   if (cameraState.mode === 0) {
     const camPos = tmpVec.copy(droneState.position).addScaledVector(forward, 2.2).addScaledVector(worldUp, 0.9);
-    cameraState.pos.lerp(camPos, 1 - Math.exp(-13 * dt));
+    cameraState.pos.lerp(camPos, 1 - Math.exp(-22 * dt));
     camera.position.copy(cameraState.pos);
     camera.lookAt(tmpVecB.copy(droneState.position).addScaledVector(forward, 90));
   } else if (cameraState.mode === 1) {
     const camPos = tmpVec.copy(droneState.position).addScaledVector(forward, -34).addScaledVector(worldUp, 11);
-    cameraState.pos.lerp(camPos, 1 - Math.exp(-6.5 * dt));
+    cameraState.pos.lerp(camPos, 1 - Math.exp(-10 * dt));
     camera.position.copy(cameraState.pos);
     camera.lookAt(tmpVecB.copy(droneState.position).addScaledVector(forward, 46));
   } else if (cameraState.mode === 2) {
@@ -464,7 +1049,9 @@ function updateStatus() {
   const alt = droneState.position.y.toFixed(1);
   const fps = fpsSmoothing.toFixed(0);
   const mode = VIEW_NAMES[cameraState.mode];
-  statusEl.textContent = `시점: ${mode} | 속도: ${(speed * 3.6).toFixed(1)} km/h | 고도: ${alt} m | FPS: ${fps} 입니다.`;
+  const boost = isBoostActive() ? ` | 부스트 ON ${gamepadState.boostButton}` : "";
+  statusEl.textContent = `시점: ${mode} | 속도: ${(speed * 3.6).toFixed(1)} km/h | 고도: ${alt} m | FPS: ${fps}${boost}`;
+  updateStartupPanel();
 }
 
 function isBoostActive() {
@@ -630,7 +1217,7 @@ function buildIslandLabels() {
 }
 
 function createTerrainPatch(width, depth, x, z, heightScale, seed, material, yOffset = 0) {
-  const geo = new THREE.PlaneGeometry(width, depth, 180, 120);
+  const geo = new THREE.PlaneGeometry(width, depth, QUALITY.terrainSegmentsX, QUALITY.terrainSegmentsZ);
   geo.rotateX(-Math.PI / 2);
 
   const pos = geo.attributes.position;
@@ -1848,7 +2435,7 @@ function addLightPoles(group) {
 }
 
 function createTrafficSystem(group) {
-  const carCount = 96;
+  const carCount = QUALITY.trafficCarCount;
   const carGeo = new THREE.BoxGeometry(1, 1, 1);
   const carMat = new THREE.MeshStandardMaterial({
     color: 0xe9ebed,

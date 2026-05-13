@@ -1,12 +1,13 @@
 import { createServer } from "node:http";
 import { promises as fs } from "node:fs";
+import { networkInterfaces } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
-const host = "127.0.0.1";
+const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT || 4173);
 
 const mime = new Map([
@@ -16,7 +17,8 @@ const mime = new Map([
   [".json", "application/json; charset=utf-8"],
   [".png", "image/png"],
   [".jpg", "image/jpeg"],
-  [".jpeg", "image/jpeg"]
+  [".jpeg", "image/jpeg"],
+  [".mp3", "audio/mpeg"]
 ]);
 
 const server = createServer(async (req, res) => {
@@ -39,5 +41,15 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`Geoga scene server: http://${host}:${port}`);
+  console.log(`Geoga scene server: http://127.0.0.1:${port}`);
+  for (const address of getLanAddresses()) {
+    console.log(`LAN preview: http://${address}:${port}`);
+  }
 });
+
+function getLanAddresses() {
+  return Object.values(networkInterfaces())
+    .flat()
+    .filter((entry) => entry && entry.family === "IPv4" && !entry.internal)
+    .map((entry) => entry.address);
+}

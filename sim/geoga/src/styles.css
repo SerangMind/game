@@ -13,6 +13,7 @@ body {
   height: 100%;
   display: block;
   cursor: crosshair;
+  touch-action: none;
 }
 
 #overlay {
@@ -46,4 +47,103 @@ body {
   font-size: 15px;
   line-height: 1.45;
   color: #d7f3ff;
+}
+
+.activation-panel {
+  pointer-events: auto;
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 13;
+  display: grid;
+  gap: 6px;
+  width: min(190px, 48vw);
+  padding: 8px 9px;
+  background: rgba(8, 15, 20, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  color: #eff7fb;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+
+.activation-panel button {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 6px;
+  background: rgba(14, 25, 33, 0.86);
+  color: #eff7fb;
+  font-size: 13px;
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.activation-panel div {
+  font-size: 10px;
+  line-height: 1.35;
+  opacity: 0.82;
+}
+
+.activation-panel[hidden] {
+  display: none;
+}
+
+.audio-controls {
+  pointer-events: auto;
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 12;
+  display: grid;
+  gap: 7px;
+  width: min(190px, 48vw);
+  padding: 9px 10px;
+  background: rgba(8, 15, 20, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  color: #eff7fb;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+
+.audio-controls label {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.audio-controls input,
+.audio-controls select {
+  width: 100%;
+  accent-color: #7de0ff;
+}
+
+.audio-off-button {
+  min-width: 0;
+  height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 5px;
+  background: rgba(14, 25, 33, 0.82);
+  color: #eff7fb;
+  font-size: 12px;
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.audio-controls select {
+  min-width: 0;
+  color: #eff7fb;
+  background: rgba(14, 25, 33, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 5px;
+  font-size: 11px;
+}
+
+.audio-controls[hidden] {
+  display: none;
 }
