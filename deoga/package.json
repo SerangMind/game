@@ -1,0 +1,13 @@
+{
+  "name": "geoga-bridge-free-flight",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Standalone interactive 3D Geoga Bridge flythrough using local Three.js.",
+  "scripts": {
+    "serve": "node ./tools/serve.mjs",
+    "playtest": "node ./tests/playwright-flight-check.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
+}

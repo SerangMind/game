@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>바이브 코딩 용어 게임</title>
+    <meta name="theme-color" content="#8fd3ff" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main class="game-shell" aria-label="바이브코딩 용어설명 떡받기 게임">
+      <section class="playfield" id="playfield" aria-label="떡 이동 영역" tabindex="0">
+        <div class="background-layer" aria-hidden="true"></div>
+        <img class="tree tree-1" src="./images/tree01.png" alt="" aria-hidden="true" />
+        <div class="sun" aria-hidden="true">
+          <img class="sun-open" src="./images/sun_openeyes.png" alt="" />
+          <img class="sun-closed" src="./images/sun_closedeyes.png" alt="" />
+        </div>
+        <div class="windmill" aria-hidden="true">
+          <img class="windmill-body" src="./images/windmill_body.png" alt="" />
+          <div class="windmill-hub">
+            <img class="windmill-blades" src="./images/windmill_blades.png" alt="" />
+          </div>
+        </div>
+        <img class="cloud cloud-1" src="./images/cloud01.png" alt="" aria-hidden="true" />
+        <img class="cloud cloud-2" src="./images/cloud02.png" alt="" aria-hidden="true" />
+        <img class="cloud cloud-3" src="./images/cloud03.png" alt="" aria-hidden="true" />
+        <img class="cloud cloud-4" src="./images/cloud04.png" alt="" aria-hidden="true" />
+        <img class="cloud cloud-5" src="./images/cloud05.png" alt="" aria-hidden="true" />
+        <img class="cloud cloud-6" src="./images/cloud06.png" alt="" aria-hidden="true" />
+        <div class="overlay-top" aria-label="게임 정보">
+          <div class="top-strip" aria-label="점수판">
+            <div class="stats-inline">
+              <span class="stat-chip">점수 <strong id="score">0</strong></span>
+              <span class="stat-chip">생명 <strong id="lives">3</strong></span>
+              <span class="stat-chip">라운드 <strong id="round">1/12</strong></span>
+            </div>
+            <div class="top-controls">
+              <div class="control-bar" aria-label="사운드 및 패드 설정">
+                <input id="bgmToggle" type="checkbox" role="switch" aria-label="배경음악 켜기 끄기" />
+                <select id="bgmSelect" aria-label="배경음악 선택">
+                </select>
+                <label for="bgmVolumeControl">배경</label>
+                <input
+                  id="bgmVolumeControl"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="84"
+                  step="1"
+                  aria-label="배경음악 크기"
+                />
+                <label for="sfxVolumeControl">효과</label>
+                <input
+                  id="sfxVolumeControl"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="90"
+                  step="1"
+                  aria-label="효과음 크기"
+                />
+                <select id="padModeSelect" aria-label="스틱 종류 선택">
+                  <option value="left">왼쪽스틱</option>
+                  <option value="right">오른쪽스틱</option>
+                  <option value="both">양쪽스틱</option>
+                </select>
+              </div>
+              <div class="action-bar" aria-label="게임 제어">
+                <button class="icon-btn primary-btn" id="startButton" type="button" aria-label="게임 시작">
+                  <img id="startButtonIcon" src="./icons/play.png" alt="" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="title-strip">
+            <p id="questionText" class="title-text">바이브 코딩 용어 게임</p>
+          </div>
+        </div>
+        <div class="skyline" aria-hidden="true"></div>
+        <div class="message active" id="message">
+          <strong>준비됐나요?</strong>
+          <span>플레이를 누르고 문제의 답을 찾으세요!</span>
+        </div>
+        <div class="basket image-character" id="basket" aria-label="알 껍질 모자를 쓴 병아리">
+          <img src="./assets/병아리.png" alt="" draggable="false" />
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

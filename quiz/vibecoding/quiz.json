@@ -1,0 +1,15 @@
+{
+  "title": "바이브 코딩 용어 게임",
+  "correctScore": 100,
+  "roundAdvanceScore": 100,
+  "lifeBonusScore": 300,
+  "lives": 3,
+  "terms": [
+    { "term": "Vibe Coding", "description": "자연언어 프로그래밍" },
+    { "term": "Git, GitHub", "description": "파일의 변경 이력을 저장하고 관리하는 프로그램" },
+    { "term": "LLM", "description": "다음 단어 만들기, 생성형AI" },
+    { "term": "컨텍스트 윈도우", "description": "LLM이 한 번에 참고할 수 있는 대화와 자료의 범위" },
+    { "term": "플랜모드", "description": "바이브코딩 처음 시작할 때 켜는 모드" },
+    { "term": "MCP, CLI", "description": "LLM과 연결할 때 사용하는 방법" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "vibecoding-terms-catcher",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Vibe coding terminology falling rice-cake catcher game.",
+  "scripts": {
+    "serve": "node ./tools/serve.mjs",
+    "playtest": "node ./tests/playwright-vibe-check.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
+}
