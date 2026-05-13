@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Hub</title>
+    <style>
+      :root {
+        --bg: #101317;
+        --panel: #f7f4ec;
+        --ink: #171a1f;
+        --muted: #65707e;
+        --line: rgba(23, 26, 31, 0.14);
+        --red: #d84f3e;
+        --blue: #2574a9;
+        --green: #2f8f63;
+        --yellow: #f0b13d;
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          "Pretendard",
+          "Apple SD Gothic Neo",
+          "Noto Sans KR",
+          system-ui,
+          sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(rgba(16, 19, 23, 0.76), rgba(16, 19, 23, 0.82)),
+          url("./quiz/vibecoding/images/background03.png") center / cover fixed;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 32px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        color: #fffaf0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .brand-mark {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: #fffaf0;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+      }
+
+      .brand-mark img {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: clamp(30px, 5vw, 64px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .brand p {
+        margin: 6px 0 0;
+        color: rgba(255, 250, 240, 0.78);
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        width: min(420px, 100%);
+      }
+
+      .summary span {
+        border: 1px solid rgba(255, 250, 240, 0.2);
+        border-radius: var(--radius);
+        padding: 12px;
+        background: rgba(255, 250, 240, 0.08);
+        color: #fffaf0;
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 22px;
+        align-items: stretch;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid rgba(255, 250, 240, 0.5);
+        border-radius: var(--radius);
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+      }
+
+      .intro {
+        padding: clamp(22px, 4vw, 42px);
+        display: grid;
+        gap: 18px;
+        align-content: center;
+      }
+
+      .intro h2 {
+        margin: 0;
+        max-width: 720px;
+        font-size: clamp(34px, 6vw, 76px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .intro p {
+        margin: 0;
+        max-width: 720px;
+        color: #4d5867;
+        font-size: clamp(17px, 2vw, 22px);
+        line-height: 1.6;
+      }
+
+      .quick-panel {
+        padding: 18px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .quick-panel h2 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .quick-link {
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        gap: 12px;
+        align-items: center;
+        min-height: 72px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: #fffaf0;
+        transition:
+          transform 0.16s ease,
+          border-color 0.16s ease,
+          box-shadow 0.16s ease;
+      }
+
+      .quick-link:hover,
+      .quick-link:focus-visible {
+        transform: translateY(-2px);
+        border-color: rgba(37, 116, 169, 0.55);
+        box-shadow: 0 10px 22px rgba(37, 116, 169, 0.16);
+        outline: none;
+      }
+
+      .quick-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-size: 22px;
+        font-weight: 900;
+      }
+
+      .quick-link strong,
+      .quick-link span {
+        display: block;
+      }
+
+      .quick-link strong {
+        font-size: 16px;
+        line-height: 1.2;
+      }
+
+      .quick-link span {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .sections {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .category {
+        overflow: hidden;
+      }
+
+      .category-media {
+        position: relative;
+        height: 168px;
+        background: #dfe7df;
+        overflow: hidden;
+      }
+
+      .category-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .category-media .scene {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background:
+          linear-gradient(180deg, #86c8f1 0%, #d8eef9 54%, #6e9c75 55%, #315b44 100%);
+      }
+
+      .bridge {
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        bottom: 42px;
+        height: 9px;
+        background: #fffaf0;
+        box-shadow: 0 7px 0 rgba(16, 19, 23, 0.24);
+      }
+
+      .bridge::before,
+      .bridge::after {
+        content: "";
+        position: absolute;
+        bottom: 8px;
+        width: 7px;
+        height: 88px;
+        background: #fffaf0;
+      }
+
+      .bridge::before {
+        left: 28%;
+      }
+
+      .bridge::after {
+        right: 28%;
+      }
+
+      .drone {
+        position: absolute;
+        top: 32px;
+        right: 34px;
+        width: 86px;
+        height: 28px;
+        border-radius: 999px;
+        background: #171a1f;
+      }
+
+      .drone::before,
+      .drone::after {
+        content: "";
+        position: absolute;
+        top: -10px;
+        width: 34px;
+        height: 34px;
+        border: 5px solid #171a1f;
+        border-radius: 50%;
+      }
+
+      .drone::before {
+        left: -28px;
+      }
+
+      .drone::after {
+        right: -28px;
+      }
+
+      .category-body {
+        padding: 20px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .category h2 {
+        margin: 0;
+        font-size: 26px;
+        line-height: 1.15;
+      }
+
+      .category p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .game-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .game-link,
+      .placeholder {
+        min-height: 58px;
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid var(--line);
+      }
+
+      .game-link {
+        background: #fffaf0;
+        font-weight: 800;
+        transition:
+          transform 0.16s ease,
+          border-color 0.16s ease,
+          background 0.16s ease;
+      }
+
+      .game-link:hover,
+      .game-link:focus-visible {
+        transform: translateY(-2px);
+        border-color: currentColor;
+        background: #fff6df;
+        outline: none;
+      }
+
+      .game-link small,
+      .placeholder small {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .arrow {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: var(--ink);
+        color: #fffaf0;
+      }
+
+      .placeholder {
+        background: rgba(255, 255, 255, 0.42);
+        color: rgba(23, 26, 31, 0.54);
+        font-weight: 800;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tag {
+        border-radius: 999px;
+        padding: 7px 10px;
+        background: rgba(23, 26, 31, 0.08);
+        color: #4d5867;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 980px) {
+        .topbar,
+        .hero,
+        .sections {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          align-items: flex-start;
+        }
+
+        .summary {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .page {
+          width: min(100% - 20px, 1180px);
+          padding: 18px 0;
+        }
+
+        .topbar {
+          display: grid;
+        }
+
+        .brand {
+          align-items: flex-start;
+        }
+
+        .brand-mark {
+          width: 48px;
+          height: 48px;
+          min-width: 48px;
+        }
+
+        .summary {
+          grid-template-columns: 1fr;
+        }
+
+        .intro {
+          padding: 20px;
+        }
+
+        .category-media {
+          height: 136px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <img src="./quiz/vibecoding/icons/icon-192.png" alt="" />
+          </div>
+          <div>
+            <h1>Game Hub</h1>
+            <p>시뮬레이션, 퀴즈, 진로 탐험 게임으로 바로 이동하는 메인 허브</p>
+          </div>
+        </div>
+        <div class="summary" aria-label="게임 분류">
+          <span>SIM</span>
+          <span>QUIZ</span>
+          <span>DREAM</span>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="panel intro">
+          <h2>원하는 게임을 고르고 바로 시작하세요.</h2>
+          <p>
+            이 루트 페이지는 각 게임 폴더로 이동하는 출발점입니다. 지금 플레이 가능한 게임은
+            거가대교 드론 시뮬레이션, 바이브코딩 용어 게임, 중학생용 나의 꿈 게임입니다.
+          </p>
+        </div>
+
+        <nav class="panel quick-panel" aria-label="빠른 실행">
+          <h2>빠른 실행</h2>
+          <a class="quick-link" href="./sim/geoga/">
+            <span class="quick-icon" style="background: var(--blue)">S</span>
+            <span>
+              <strong>거가대교 드론 시뮬레이션</strong>
+              <span>sim / geoga</span>
+            </span>
+          </a>
+          <a class="quick-link" href="./quiz/vibecoding/">
+            <span class="quick-icon" style="background: var(--yellow)">Q</span>
+            <span>
+              <strong>바이브코딩 용어 게임</strong>
+              <span>quiz / vibecoding</span>
+            </span>
+          </a>
+          <a class="quick-link" href="./dream/middle/">
+            <span class="quick-icon" style="background: var(--green)">D</span>
+            <span>
+              <strong>나의 꿈: 중학생</strong>
+              <span>dream / middle</span>
+            </span>
+          </a>
+        </nav>
+      </section>
+
+      <section class="sections" aria-label="게임 카테고리">
+        <article class="panel category">
+          <div class="category-media" aria-hidden="true">
+            <div class="scene">
+              <span class="drone"></span>
+              <span class="bridge"></span>
+            </div>
+          </div>
+          <div class="category-body">
+            <div>
+              <h2>시뮬레이션</h2>
+              <p>공간과 움직임을 조작하며 체험하는 게임 모음입니다.</p>
+            </div>
+            <div class="game-list">
+              <a class="game-link" href="./sim/geoga/">
+                <span>거가대교 드론 시뮬레이션<small>game / sim / geoga</small></span>
+                <span class="arrow" aria-hidden="true">›</span>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel category">
+          <div class="category-media" aria-hidden="true">
+            <img src="./quiz/vibecoding/images/background01.png" alt="" />
+          </div>
+          <div class="category-body">
+            <div>
+              <h2>퀴즈</h2>
+              <p>문제를 읽고 정답을 찾으며 개념을 익히는 게임 모음입니다.</p>
+            </div>
+            <div class="game-list">
+              <a class="game-link" href="./quiz/vibecoding/">
+                <span>바이브코딩 용어 게임<small>game / quiz / vibecoding</small></span>
+                <span class="arrow" aria-hidden="true">›</span>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel category">
+          <div class="category-media" aria-hidden="true">
+            <img src="./quiz/vibecoding/assets/병아리.png" alt="" />
+          </div>
+          <div class="category-body">
+            <div>
+              <h2>나의 꿈</h2>
+              <p>나는 누구인가를 탐색하는 진로 게임입니다. 연령대별 버전으로 확장됩니다.</p>
+            </div>
+            <div class="game-list">
+              <div class="placeholder">
+                <span>초등학생<small>dream / element</small></span>
+                <span>준비중</span>
+              </div>
+              <a class="game-link" href="./dream/middle/">
+                <span>중학생<small>dream / middle</small></span>
+                <span class="arrow" aria-hidden="true">›</span>
+              </a>
+              <div class="placeholder">
+                <span>고등학생<small>dream / high</small></span>
+                <span>준비중</span>
+              </div>
+              <div class="placeholder">
+                <span>대학생<small>dream / college</small></span>
+                <span>준비중</span>
+              </div>
+              <div class="placeholder">
+                <span>성인<small>dream / adult</small></span>
+                <span>준비중</span>
+              </div>
+            </div>
+            <div class="tag-row" aria-label="나의 꿈 구분">
+              <span class="tag">element</span>
+              <span class="tag">middle</span>
+              <span class="tag">high</span>
+              <span class="tag">college</span>
+              <span class="tag">adult</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
