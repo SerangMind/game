@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" role="img" aria-label="Simulation genre background">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#8dd6f2"/>
+      <stop offset="0.52" stop-color="#d8f2f2"/>
+      <stop offset="0.53" stop-color="#5b9276"/>
+      <stop offset="1" stop-color="#1d4a4f"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#2b6f86"/>
+      <stop offset="1" stop-color="#173d52"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="1200" fill="url(#sky)"/>
+  <path d="M0 680 C160 620 300 740 460 675 C610 615 720 665 900 600 L900 1200 L0 1200 Z" fill="url(#water)"/>
+  <path d="M-50 590 C130 520 210 540 360 500 C540 450 690 450 960 370 L960 500 C700 550 560 575 400 640 C260 696 90 690 -50 750 Z" fill="#f8f2df"/>
+  <g fill="none" stroke="#fff8e8" stroke-width="10" stroke-linecap="round">
+    <path d="M30 590 C220 520 470 475 860 390"/>
+    <path d="M45 628 C250 565 495 520 840 450"/>
+  </g>
+  <g stroke="#fff8e8" stroke-width="8" stroke-linecap="round">
+    <path d="M220 545 L220 750"/>
+    <path d="M235 542 L235 760"/>
+    <path d="M590 460 L590 700"/>
+    <path d="M607 456 L607 710"/>
+    <path d="M212 560 L242 552"/>
+    <path d="M581 477 L617 468"/>
+  </g>
+  <g transform="translate(570 210)">
+    <ellipse cx="95" cy="54" rx="78" ry="22" fill="#18232d"/>
+    <rect x="30" y="44" width="130" height="28" rx="14" fill="#263544"/>
+    <circle cx="18" cy="24" r="38" fill="none" stroke="#18232d" stroke-width="10"/>
+    <circle cx="175" cy="24" r="38" fill="none" stroke="#18232d" stroke-width="10"/>
+    <path d="M50 50 L18 24 M140 50 L175 24" stroke="#18232d" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <g fill="#ffffff" opacity="0.48">
+    <circle cx="140" cy="160" r="48"/>
+    <circle cx="185" cy="155" r="62"/>
+    <circle cx="235" cy="170" r="42"/>
+    <rect x="120" y="170" width="145" height="35" rx="18"/>
+  </g>
+</svg>

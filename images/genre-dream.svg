@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" role="img" aria-label="Dream career genre background">
+  <defs>
+    <linearGradient id="night" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#172554"/>
+      <stop offset="0.45" stop-color="#6d5bd0"/>
+      <stop offset="1" stop-color="#f7b267"/>
+    </linearGradient>
+    <linearGradient id="path" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff8e8"/>
+      <stop offset="1" stop-color="#ffd166"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="1200" fill="url(#night)"/>
+  <g fill="#fff8e8" opacity="0.9">
+    <circle cx="140" cy="140" r="4"/>
+    <circle cx="260" cy="230" r="5"/>
+    <circle cx="500" cy="150" r="4"/>
+    <circle cx="710" cy="245" r="6"/>
+    <circle cx="790" cy="120" r="3"/>
+    <circle cx="350" cy="380" r="4"/>
+  </g>
+  <path d="M160 170 L260 230 L350 380 L500 150 L710 245" fill="none" stroke="#fff8e8" stroke-width="3" opacity="0.42"/>
+  <path d="M0 770 C170 710 300 780 460 725 C620 670 740 720 900 650 L900 1200 L0 1200 Z" fill="#243b55" opacity="0.55"/>
+  <path d="M385 1200 C410 1030 430 870 450 710 C470 870 492 1030 520 1200 Z" fill="url(#path)"/>
+  <path d="M335 710 C380 670 428 645 450 560 C473 645 520 670 565 710 C518 710 485 702 450 758 C415 702 382 710 335 710 Z" fill="#fff8e8"/>
+  <g fill="#fff8e8" opacity="0.9">
+    <path d="M450 255 l18 40 43 5 -32 29 9 43 -38 -22 -38 22 9 -43 -32 -29 43 -5z"/>
+    <path d="M642 455 l13 29 31 4 -23 21 7 31 -28 -16 -28 16 7 -31 -23 -21 31 -4z"/>
+    <path d="M238 505 l12 25 28 4 -20 19 5 28 -25 -14 -25 14 5 -28 -20 -19 28 -4z"/>
+  </g>
+  <g fill="none" stroke="#fff8e8" stroke-width="10" stroke-linecap="round" opacity="0.65">
+    <path d="M450 560 C405 520 380 475 382 430"/>
+    <path d="M450 560 C498 518 524 476 522 425"/>
+    <path d="M450 560 C450 500 450 446 450 394"/>
+  </g>
+</svg>
