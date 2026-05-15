@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 안의 힌트 : 성인 커리어 탐험</title>
+  <style>
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e293b;
+      --panel: rgba(15, 23, 42, 0.78);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --accent-2: #a78bfa;
+      --button: rgba(255, 255, 255, 0.08);
+      --button-hover: rgba(255, 255, 255, 0.14);
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(167, 139, 250, 0.18), transparent 30%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(1100px, 100%);
+      min-height: min(760px, calc(100vh - 48px));
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .eyebrow {
+      font-size: 15px;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .title {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.1;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(15px, 2vw, 19px);
+      line-height: 1.55;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      color: var(--text);
+      font: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    .ghost-btn,
+    .primary-btn,
+    .choice-btn {
+      transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+    }
+
+    .ghost-btn:hover,
+    .primary-btn:hover,
+    .choice-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .ghost-btn {
+      background: var(--button);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-weight: 700;
+    }
+
+    .ghost-btn:hover {
+      background: var(--button-hover);
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 800;
+      color: white;
+      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.25);
+    }
+
+    .primary-btn:hover {
+      opacity: 0.95;
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      gap: 24px;
+      min-height: 0;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-card,
+    .question-card,
+    .result-card,
+    .helper-card {
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 22px;
+      padding: 24px;
+    }
+
+    .hero-card {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .hero-title {
+      margin: 0 0 12px;
+      font-size: clamp(32px, 4.5vw, 52px);
+      line-height: 1.08;
+    }
+
+    .hero-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 2vw, 21px);
+      line-height: 1.6;
+    }
+
+    .hero-points {
+      display: grid;
+      gap: 12px;
+    }
+
+    .point {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .point strong {
+      display: block;
+      font-size: 17px;
+      margin-bottom: 6px;
+    }
+
+    .point span {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .progress-bar {
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.25s ease;
+    }
+
+    .question-card {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+    }
+
+    .question-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    .question-tag {
+      width: 96px;
+      height: 96px;
+      min-width: 96px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      font-size: 52px;
+      font-weight: 900;
+      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.25);
+    }
+
+    .question-title {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.18;
+      font-weight: 800;
+      white-space: pre-line;
+    }
+
+    .choice-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .choice-btn {
+      text-align: left;
+      padding: 20px;
+      min-height: 124px;
+      border-radius: 20px;
+      background: var(--button);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .choice-btn:hover {
+      background: var(--button-hover);
+    }
+
+    .choice-no {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .choice-text {
+      display: block;
+      flex: 1;
+      text-align: left;
+      font-size: clamp(18px, 2.1vw, 26px);
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .helper-card {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .helper-badge {
+      color: white;
+      background: rgba(56, 189, 248, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.24);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .result-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      flex: 1;
+    }
+
+    .result-card h2 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 3.8vw, 42px);
+      line-height: 1.12;
+    }
+
+    .result-divider {
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    .type-name {
+      font: inherit;
+      letter-spacing: inherit;
+    }
+
+    .result-label {
+      color: var(--accent);
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+
+    .result-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .result-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 132px;
+    }
+
+    .result-pill small {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .result-pill strong {
+      display: block;
+      font-size: clamp(22px, 2.5vw, 30px);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .result-pill span {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    .result-summary {
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.65;
+      color: #eef2ff;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    .result-right {
+      display: grid;
+      gap: 18px;
+    }
+
+    .score-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .score-item {
+      display: grid;
+      grid-template-columns: 92px 1fr 42px;
+      gap: 10px;
+      align-items: center;
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .score-track {
+      height: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .tips-list {
+      display: grid;
+      gap: 10px;
+      padding-left: 20px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    /* 직업 리스트만 2열 */
+    #fitList {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      padding-left: 18px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-top: auto;
+    }
+
+    @media (max-width: 900px) {
+      .hero-card,
+      .result-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .choice-list {
+        grid-template-columns: 1fr;
+      }
+
+      .app {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px;
+      }
+
+      .app {
+        padding: 16px;
+        border-radius: 20px;
+      }
+
+      .question-title {
+        font-size: 28px;
+      }
+
+      .choice-btn {
+        min-height: 96px;
+        padding: 16px;
+      }
+
+      .result-pair {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1 class="title">5분 진로탐험 - 성인 커리어 재정렬</h1>
+        </div>
+      <div class="toolbar">
+        <button class="primary-btn" id="restartBtn" type="button" style="display:none;">다시 탐험하기</button>
+        <button class="ghost-btn" id="resetBtnTop" type="button" style="display:none;">처음으로</button>
+        <button class="ghost-btn" id="fullscreenBtn" type="button">전체화면</button>
+      </div>
+    </header>
+
+    <section class="screen active" id="startScreen">
+      <div class="hero-card">
+        <div>
+          <h2 class="hero-title">5개의 선택으로 보는<br />나의 일하는 방식</h2>
+          <div class="hero-actions">
+            <button class="primary-btn" id="startBtn" type="button">탐험 시작하기</button>
+          </div>
+        </div>
+        <div class="hero-points">
+          <div class="point">
+            <strong>총 5문항</strong>
+          </div>
+          <div class="point">
+            <strong>주성향 + 보조성향</strong>
+          </div>
+          </div>
+      </div>
+    </section>
+
+    <section class="screen" id="questionScreen">
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="progressLabel">1 / 5</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-header">
+          <div class="question-tag" id="questionTag">1</div>
+          <h2 class="question-title" id="questionTitle"></h2>
+        </div>
+        <div class="choice-list" id="choiceList"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="resultScreen">
+      <div class="result-layout">
+        <div class="result-card">
+          <h2 id="resultTitle">결과 제목</h2>
+          <div class="result-pair">
+            <div class="result-pill">
+              <small>주성향</small>
+              <strong id="primaryTypeName">-</strong>
+              <span id="primaryTypeDesc">-</span>
+              </div>
+            <div class="result-pill">
+              <small>보조성향</small>
+              <strong id="secondaryTypeName">-</strong>
+              <span id="secondaryTypeDesc">-</span>
+              </div>
+          </div>
+          <div class="result-card" style="padding:18px; margin-bottom:18px;">
+            <div class="result-label">어울릴 수 있는 직업</div>
+            <ul class="tips-list" id="fitList"></ul>
+          </div>
+          
+          </div>
+
+        <div class="result-right">
+          <div class="result-card">
+            <div class="result-label">성향 점수</div>
+            <div class="score-list" id="scoreList"></div>
+          </div>
+          <div class="result-card">
+            <div class="result-label">나에게 맞는 공부방식</div>
+            <ul class="tips-list" id="studyList"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const archetypes = {
+      analysis: {
+            label: "분석형 전문가",
+            color: "#0ea5e9",
+            short: "문제의 구조와 숫자를 먼저 봅니다.",
+            long: "경험을 감으로만 판단하지 않고 원인, 지표, 리스크를 정리해 선택하려는 경향이 있습니다.",
+            fit: [
+                  "데이터/BI",
+                  "개발/자동화",
+                  "재무/전략",
+                  "품질/프로세스 개선",
+                  "전문 컨설팅"
+            ],
+            study: [
+                  "업무 문제를 지표로 정의하기",
+                  "케이스를 구조화해 기록하기",
+                  "새 도구를 작은 자동화에 적용하기"
+            ]
+      },
+      empathy: {
+            label: "사람중심 조율가",
+            color: "#f97316",
+            short: "관계, 신뢰, 사용자의 변화를 중요하게 봅니다.",
+            long: "성과를 만들 때도 사람의 동기와 맥락을 이해하고 조율하려는 경향이 있습니다.",
+            fit: [
+                  "교육/코칭",
+                  "HR/조직문화",
+                  "상담/복지",
+                  "고객성공",
+                  "커뮤니티 운영"
+            ],
+            study: [
+                  "현장의 목소리를 정기적으로 듣기",
+                  "갈등 사례를 회고하며 패턴 찾기",
+                  "멘토링/코칭 역량을 훈련하기"
+            ]
+      },
+      planning: {
+            label: "전략형 설계자",
+            color: "#8b5cf6",
+            short: "목표, 자원, 우선순위를 정리합니다.",
+            long: "복잡한 일과 삶의 조건 속에서 실행 가능한 로드맵을 만들려는 경향이 있습니다.",
+            fit: [
+                  "사업기획",
+                  "PM/PO",
+                  "운영관리",
+                  "교육/프로그램 설계",
+                  "창업/프리랜스"
+            ],
+            study: [
+                  "분기 목표와 주간 액션 연결하기",
+                  "비용/시간/리스크를 함께 계산하기",
+                  "결정 로그로 선택 이유 남기기"
+            ]
+      },
+      creative: {
+            label: "창작형 전환가",
+            color: "#ec4899",
+            short: "경험을 콘텐츠, 브랜드, 제품으로 바꿉니다.",
+            long: "쌓아온 관점과 취향을 새로운 결과물로 표현하며 기회를 만들려는 경향이 있습니다.",
+            fit: [
+                  "콘텐츠/강의 제작",
+                  "브랜딩",
+                  "디자인/UX",
+                  "1인 비즈니스",
+                  "문화예술 기획"
+            ],
+            study: [
+                  "경험을 글/영상/강의안으로 변환하기",
+                  "작은 상품이나 콘텐츠를 테스트하기",
+                  "레퍼런스를 모아 나만의 톤 만들기"
+            ]
+      },
+      execution: {
+            label: "실행형 개척가",
+            color: "#22c55e",
+            short: "작게 시작해 시장과 현장에서 배웁니다.",
+            long: "완벽한 준비보다 빠른 실험과 피드백으로 다음 방향을 찾는 경향이 있습니다.",
+            fit: [
+                  "창업/세일즈",
+                  "현장 운영",
+                  "프로젝트 매니지먼트",
+                  "실무 기술직",
+                  "프리랜스 실행"
+            ],
+            study: [
+                  "2주 단위 실험을 설계하기",
+                  "고객/동료 반응으로 개선하기",
+                  "작게 팔거나 공개해 검증하기"
+            ]
+      }
+};
+
+    const questions = [
+      {
+            title: "커리어 전환을 고민하고 있습니다.\n가장 먼저 확인할 것은?",
+            choices: [
+                  {
+                        text: "현재 역량과 시장 수요를 비교한다",
+                        scores: {
+                              analysis: 2
+                        }
+                  },
+                  {
+                        text: "가족/동료/고객의 기대를 살핀다",
+                        scores: {
+                              empathy: 2
+                        }
+                  },
+                  {
+                        text: "수입, 시간, 준비기간을 계획한다",
+                        scores: {
+                              planning: 2
+                        }
+                  },
+                  {
+                        text: "작은 사이드 프로젝트부터 시작한다",
+                        scores: {
+                              execution: 2
+                        }
+                  }
+            ]
+      },
+      {
+            title: "새 업무 도구를 도입해야 합니다.\n내 접근은?",
+            choices: [
+                  {
+                        text: "효율 지표와 리스크를 검토한다",
+                        scores: {
+                              analysis: 2
+                        }
+                  },
+                  {
+                        text: "팀원이 편하게 쓸 수 있는지 본다",
+                        scores: {
+                              empathy: 2
+                        }
+                  },
+                  {
+                        text: "도입 단계와 교육 일정을 짠다",
+                        scores: {
+                              planning: 2
+                        }
+                  },
+                  {
+                        text: "먼저 써보고 예시를 만든다",
+                        scores: {
+                              execution: 2
+                        }
+                  }
+            ]
+      },
+      {
+            title: "일에서 의미를 다시 찾고 싶을 때\n중요한 기준은?",
+            choices: [
+                  {
+                        text: "내 강점이 성과로 이어지는 구조",
+                        scores: {
+                              analysis: 2
+                        }
+                  },
+                  {
+                        text: "누구에게 도움이 되는 일인지",
+                        scores: {
+                              empathy: 2
+                        }
+                  },
+                  {
+                        text: "장기 목표와 생활 균형",
+                        scores: {
+                              planning: 2
+                        }
+                  },
+                  {
+                        text: "내 경험을 새롭게 표현할 기회",
+                        scores: {
+                              creative: 2
+                        }
+                  }
+            ]
+      },
+      {
+            title: "팀 문제가 반복되고 있습니다.\n나는 무엇을 하나요?",
+            choices: [
+                  {
+                        text: "원인과 병목을 데이터로 찾는다",
+                        scores: {
+                              analysis: 2
+                        }
+                  },
+                  {
+                        text: "구성원의 입장과 감정을 듣는다",
+                        scores: {
+                              empathy: 2
+                        }
+                  },
+                  {
+                        text: "역할과 프로세스를 다시 설계한다",
+                        scores: {
+                              planning: 2
+                        }
+                  },
+                  {
+                        text: "새로운 회의 방식이나 도구를 실험한다",
+                        scores: {
+                              creative: 2
+                        }
+                  }
+            ]
+      },
+      {
+            title: "새 수입원을 만들고 싶습니다.\n첫 행동은?",
+            choices: [
+                  {
+                        text: "시장과 경쟁 서비스를 조사한다",
+                        scores: {
+                              analysis: 2
+                        }
+                  },
+                  {
+                        text: "주변 사람이 겪는 불편을 듣는다",
+                        scores: {
+                              empathy: 2
+                        }
+                  },
+                  {
+                        text: "예산과 실행 계획을 만든다",
+                        scores: {
+                              planning: 2
+                        }
+                  },
+                  {
+                        text: "작은 상품/서비스를 바로 테스트한다",
+                        scores: {
+                              execution: 2
+                        }
+                  }
+            ]
+      }
+];
+
+    const scoreKeys = ["analysis", "empathy", "planning", "creative", "execution"];
+
+    const els = {
+      startScreen: document.getElementById("startScreen"),
+      questionScreen: document.getElementById("questionScreen"),
+      resultScreen: document.getElementById("resultScreen"),
+      startBtn: document.getElementById("startBtn"),
+      resetBtnTop: document.getElementById("resetBtnTop"),
+      fullscreenBtn: document.getElementById("fullscreenBtn"),
+      progressLabel: document.getElementById("progressLabel"),
+      progressFill: document.getElementById("progressFill"),
+      questionTag: document.getElementById("questionTag"),
+      questionTitle: document.getElementById("questionTitle"),
+      choiceList: document.getElementById("choiceList"),
+      resultTitle: document.getElementById("resultTitle"),
+      primaryTypeName: document.getElementById("primaryTypeName"),
+      primaryTypeDesc: document.getElementById("primaryTypeDesc"),
+      secondaryTypeName: document.getElementById("secondaryTypeName"),
+      secondaryTypeDesc: document.getElementById("secondaryTypeDesc"),
+      scoreList: document.getElementById("scoreList"),
+      fitList: document.getElementById("fitList"),
+      studyList: document.getElementById("studyList"),
+      restartBtn: document.getElementById("restartBtn"),
+    };
+
+    let currentIndex = 0;
+    let scores = createEmptyScores();
+
+    function createEmptyScores() {
+      return {
+        analysis: 0,
+        empathy: 0,
+        planning: 0,
+        creative: 0,
+        execution: 0
+      };
+    }
+
+    function showScreen(screenName) {
+      Object.values({
+        startScreen: els.startScreen,
+        questionScreen: els.questionScreen,
+        resultScreen: els.resultScreen
+      }).forEach((screen) => screen.classList.remove("active"));
+      els[screenName].classList.add("active");
+      els.restartBtn.style.display = screenName === "resultScreen" ? "inline-flex" : "none";
+      els.resetBtnTop.style.display = screenName === "startScreen" ? "none" : "inline-flex";
+    }
+
+    function resetGame(goHome = true) {
+      currentIndex = 0;
+      scores = createEmptyScores();
+      if (goHome) showScreen("startScreen");
+    }
+
+    function startGame() {
+      currentIndex = 0;
+      scores = createEmptyScores();
+      showScreen("questionScreen");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[currentIndex];
+      const progressPercent = ((currentIndex) / questions.length) * 100;
+      els.progressLabel.textContent = `${currentIndex + 1} / ${questions.length}`;
+      els.progressFill.style.width = `${Math.max(progressPercent, 6)}%`;
+      els.questionTag.textContent = currentIndex + 1;
+      els.questionTitle.textContent = q.title;
+      els.choiceList.innerHTML = "";
+
+      q.choices.forEach((choice, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.innerHTML = `
+          <span class="choice-no">${index + 1}</span>
+          <span class="choice-text">${choice.text}</span>
+        `;
+        btn.addEventListener("click", () => handleChoice(choice));
+        els.choiceList.appendChild(btn);
+      });
+    }
+
+    function handleChoice(choice) {
+      for (const [key, value] of Object.entries(choice.scores)) {
+        scores[key] += value;
+      }
+
+      currentIndex += 1;
+
+      if (currentIndex < questions.length) {
+        renderQuestion();
+        return;
+      }
+
+      renderResult();
+      showScreen("resultScreen");
+    }
+
+    function sortedResults() {
+      const ranked = scoreKeys
+        .map((key) => ({ key, score: scores[key] }))
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return scoreKeys.indexOf(a.key) - scoreKeys.indexOf(b.key);
+        });
+      return ranked;
+    }
+
+    function renderResult() {
+      const ranked = sortedResults();
+      const primary = archetypes[ranked[0].key];
+      const secondary = archetypes[ranked[1].key];
+
+      els.resultTitle.innerHTML = `
+        <span class="type-name" style="color:${primary.color};">${primary.label}</span>
+        <span class="result-divider"> · </span>
+        <span class="type-name" style="color:${secondary.color};">${secondary.label}</span>
+      `;
+      els.primaryTypeName.textContent = primary.label;
+      els.primaryTypeDesc.textContent = primary.short;
+      els.secondaryTypeName.textContent = secondary.label;
+      els.secondaryTypeDesc.textContent = secondary.short;
+
+      renderScoreList(ranked);
+      renderFitList(primary, secondary);
+      renderStudyList(primary, secondary);
+      saveLastResult(ranked);
+    }
+
+    function renderScoreList(ranked) {
+      els.scoreList.innerHTML = "";
+      const maxScore = Math.max(...ranked.map((item) => item.score), 1);
+
+      ranked.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "score-item";
+
+        const label = document.createElement("span");
+        label.textContent = archetypes[item.key].label;
+
+        const track = document.createElement("div");
+        track.className = "score-track";
+        const fill = document.createElement("div");
+        fill.className = "score-fill";
+        fill.style.width = `${(item.score / maxScore) * 100}%`;
+        track.appendChild(fill);
+
+        const score = document.createElement("span");
+        score.textContent = `${item.score}점`;
+
+        row.append(label, track, score);
+        els.scoreList.appendChild(row);
+      });
+    }
+
+    function renderFitList(primary, secondary) {
+      const merged = [...primary.fit, ...secondary.fit].filter((item, index, arr) => arr.indexOf(item) === index).slice(0, 6);
+      els.fitList.innerHTML = "";
+      merged.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        els.fitList.appendChild(li);
+      });
+    }
+
+    function renderStudyList(primary, secondary) {
+      const merged = [...primary.study, ...secondary.study].filter((item, index, arr) => arr.indexOf(item) === index).slice(0, 6);
+      els.studyList.innerHTML = "";
+      merged.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        els.studyList.appendChild(li);
+      });
+    }
+
+    function saveLastResult(ranked) {
+      const payload = {
+        createdAt: new Date().toISOString(),
+        scores,
+        ranked
+      };
+      localStorage.setItem("career_hint_adult_result", JSON.stringify(payload));
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.();
+      } else {
+        document.exitFullscreen?.();
+      }
+    }
+
+    els.startBtn.addEventListener("click", startGame);
+    els.resetBtnTop.addEventListener("click", () => resetGame(true));
+    els.restartBtn.addEventListener("click", startGame);
+    els.fullscreenBtn.addEventListener("click", toggleFullscreen);
+    showScreen("startScreen");
+
+    document.addEventListener("keydown", (event) => {
+      if (!els.questionScreen.classList.contains("active")) return;
+      const number = Number(event.key);
+      if (number >= 1 && number <= 4) {
+        const q = questions[currentIndex];
+        if (q?.choices[number - 1]) {
+          handleChoice(q.choices[number - 1]);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
