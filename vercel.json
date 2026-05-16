@@ -1,7 +1,7 @@
 {
   "version": 2,
   "cleanUrls": false,
-  "trailingSlash": false,
+  "trailingSlash": true,
   "redirects": [
     {
       "source": "/sim/geoga",
