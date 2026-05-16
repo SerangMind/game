@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/sim/geoga",
+      "destination": "/sim/geoga/",
+      "permanent": true
+    },
+    {
+      "source": "/quiz/vibecoding",
+      "destination": "/quiz/vibecoding/",
+      "permanent": true
+    },
+    {
+      "source": "/dream/element",
+      "destination": "/dream/element/",
+      "permanent": true
+    },
+    {
+      "source": "/dream/middle",
+      "destination": "/dream/middle/",
+      "permanent": true
+    },
+    {
+      "source": "/dream/high",
+      "destination": "/dream/high/",
+      "permanent": true
+    },
+    {
+      "source": "/dream/college",
+      "destination": "/dream/college/",
+      "permanent": true
+    },
+    {
+      "source": "/dream/adult",
+      "destination": "/dream/adult/",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(js|css)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}
